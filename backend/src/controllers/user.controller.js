@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { sendEmail } from "../utils/sendmail.js";
 
 const generateAccessAndRefreshToken = async (userid) => {
   try {
@@ -62,6 +63,9 @@ const registerUser = asyncHandler(async (req, res) => {
   if (!createdUser) {
     throw new ApiError(409, "An Occured while registering the user.");
   }
+
+  await sendEmail({email, emailType:"VERIFY",userId:createdUser._id})
+
   return res
     .status(201)
     .json(new ApiResponse(201, "user registered", createdUser));
@@ -128,7 +132,9 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   return res.status(201).json(new ApiResponse(201, "password changed", {}));
 });
 
-
+const addCourses = asyncHandler(async (req, res) => {
+  
+});
 
 export {
   registerUser,
@@ -136,4 +142,5 @@ export {
   logoutUser,
   getCurrentUser,
   changeCurrentPassword,
+  addCourses,
 };
