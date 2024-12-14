@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import {User} from "../models/user.model.js";
+import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const generateAccessAndRefreshToken = async (userid) => {
@@ -109,8 +109,31 @@ const logoutUser = asyncHandler(async (req, res) => {
     .status(201)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(201, "user logged out",{}));
+    .json(new ApiResponse(201, "user logged out", {}));
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res.status(201).json(new ApiResponse(201, "user details", req.user));
+});
+
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const user = await User.findById(req.user._id);
+  const passwordCorrect = await user.isPasswordCorrect(oldPassword);
+  if (!passwordCorrect) {
+    throw new ApiError(409, "invalid password");
+  }
+  user.password = newPassword;
+  user.save({ validateBeforeSave: false });
+  return res.status(201).json(new ApiResponse(201, "password changed", {}));
 });
 
 
-export { registerUser, loginUser, logoutUser };
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  getCurrentUser,
+  changeCurrentPassword,
+};
