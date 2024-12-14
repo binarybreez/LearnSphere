@@ -34,6 +34,16 @@ const userSchema = new Schema(
     avatar: {
       type: String,
     },
+    courses: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
+    verifyToken: String,
+    verifyTokenExpiry: Date,
+    passwordChnageToken:String,
+    passwordChnageTokenExpiry:String,
   },
   { timestamps: true }
 );
@@ -46,15 +56,15 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.isPasswordCorrect = async function (password){
+userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.isInstructor = async function(){
-  return (this.role === "instructor")
-}
+userSchema.methods.isInstructor = async function () {
+  return this.role === "instructor";
+};
 
-userSchema.methods.generateAccessToken = async function(){
+userSchema.methods.generateAccessToken = async function () {
   const token = await jwt.sign(
     {
       _id: this._id,
@@ -66,7 +76,7 @@ userSchema.methods.generateAccessToken = async function(){
   );
   return token;
 };
-userSchema.methods.generateRefreshToken = async function(){
+userSchema.methods.generateRefreshToken = async function () {
   const token = await jwt.sign(
     {
       _id: this._id,
