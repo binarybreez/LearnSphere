@@ -28,8 +28,8 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
-      default: "user",
+      enum: ["student", "instructor"],
+      default: "student",
     },
     avatar: {
       type: String,
@@ -49,6 +49,10 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.isPasswordCorrect = async function (password){
   return await bcrypt.compare(password, this.password);
 };
+
+userSchema.methods.isInstructor = async function(){
+  return (this.role === "instructor")
+}
 
 userSchema.methods.generateAccessToken = async function(){
   const token = await jwt.sign(
