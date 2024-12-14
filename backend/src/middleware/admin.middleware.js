@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 
-const instructorOnly = asyncHandler(async (req, res, next) => {
+const instructorOnly = asyncHandler(async (req, _, next) => {
   try {
     const { user } = req.user;
     const instructor = await user?.isInstructor();
