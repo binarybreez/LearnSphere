@@ -78,7 +78,7 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(409, "user not found");
   }
-  const PasswordValid = await User.isPasswordCorrect(password);
+  const PasswordValid = await user.isPasswordCorrect(password);
   if (!PasswordValid) {
     throw new ApiError(409, "Invalid Login Credentials");
   }
@@ -91,7 +91,7 @@ const loginUser = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .cookie("accessToken", accessToken, options)
-    .cookies("refreshToken", refreshToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(new ApiResponse(201, "user logged in", loggedInUser));
 });
 
@@ -111,5 +111,6 @@ const logoutUser = asyncHandler(async (req, res) => {
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(201, "user logged out",{}));
 });
+
 
 export { registerUser, loginUser, logoutUser };
