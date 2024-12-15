@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import path from "path";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,21 +8,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 const uploadOnCloudinary = async (localfilepath) => {
-  if (!fs.existsSync(localfilepath)) {
-    console.log("file does not exists");
-    try {
-      const response = await cloudinary.uploader.upload(
-        "../../public/temp/pngegg.png",
-        {
-          resource_type: "auto",
-        }
-      );
-      console.log("default file has been uploaded, ", response);
-      return response;
-    } catch (error) {
-      console.log(error.message);
-    }
-  }
   try {
     const normalisedpath = localfilepath.replace(/\\/g, "/");
     const response = await cloudinary.uploader.upload(normalisedpath, {
@@ -32,7 +18,10 @@ const uploadOnCloudinary = async (localfilepath) => {
     return response;
   } catch (error) {
     console.log(error.message);
-    if (fs.existsSync(localfilepath)) {
+    if (
+      fs.existsSync(localfilepath) &&
+      localfilepath !== path.join(process.cwd(), "public", "avatar.png")
+    ) {
       fs.unlinkSync(localfilepath);
     }
   }
