@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import path from "path";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,13 +13,18 @@ const uploadOnCloudinary = async (localfilepath) => {
       resource_type: "auto",
     });
     console.log("file has been uploaded, ", response);
-    fs.unlinkSync(localfilepath);
+    if (
+      fs.existsSync(localfilepath) &&
+      localfilepath !== "./public/avatar.png"
+    ) {
+      fs.unlinkSync(localfilepath);
+    }
     return response;
   } catch (error) {
     console.log(error.message);
     if (
       fs.existsSync(localfilepath) &&
-      localfilepath !== path.join(process.cwd(), "public", "avatar.png")
+      localfilepath !== "./public/avatar.png"
     ) {
       fs.unlinkSync(localfilepath);
     }
