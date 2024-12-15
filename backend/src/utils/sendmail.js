@@ -5,12 +5,26 @@ import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
 
-const templatePath = path.join(__dirname, "email_template.html"); // Ensure correct path to your HTML file
+const templatePath = path.join(
+  process.cwd(),
+  "src",
+  "utils",
+  "email_template.html"
+); // Ensure correct path to your HTML file
 const emailTemplate = fs.readFileSync(templatePath, "utf-8");
 
 export const sendEmail = async ({ email, emailType, userId }) => {
   try {
     const hashedToken = await bcrypt.hash(userId.toString(), 10);
+    const user = await User.findById(userId);
+    const userName = await user.username;
+    let courseName = "No Course";
+    let courseId = "No Course";
+    if(user.courses.length > 0){
+       courseName = await user.courses[user.courses.length - 1].title;
+       courseId = await user.courses[user.courses.length - 1]._id;
+    }
+    
 
     if (emailType === "VERIFY") {
       await User.findByIdAndUpdate(userId, {
@@ -40,29 +54,45 @@ export const sendEmail = async ({ email, emailType, userId }) => {
       from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // sender address
       to: email,
       subject:
-        emailType === "VERIFY" ? "verify your account" : "reset your password",
+        emailType === "VERIFY"
+          ? "Verify Your Account"
+          : emailType === "PASSWORD_RESET"
+          ? "Reset Your Password"
+          : "Course Enrollment Successful",
       html: emailTemplate
         .replace(
           "{{HEADER_TITLE}}",
-          emailType === "VERIFY" ? "Verify Your Email" : "Reset Password"
+          emailType === "VERIFY"
+            ? "Verify Your Email"
+            : emailType === "PASSWORD_RESET"
+            ? "Reset Your Password"
+            : "Enrollment Successful"
         )
         .replace("{{GREETING}}", `Hi ${userName},`) // Replace with the user's name or a default greeting
         .replace(
           "{{MESSAGE}}",
           emailType === "VERIFY"
             ? "Please verify your email address by clicking the button below."
-            : "Click the button below to reset your password."
+            : emailType === "PASSWORD_RESET"
+            ? "Click the button below to reset your password."
+            : `You have successfully enrolled in the course: ${courseName}.`
         )
         .replace(
           "{{ACTION_URL}}",
           emailType === "VERIFY"
             ? `${process.env.DOMAIN}/verify-email?token=${hashedToken}`
-            : `${process.env.DOMAIN}/change-password`
+            : emailType === "PASSWORD_RESET"
+            ? `${process.env.DOMAIN}/change-password`
+            : `${process.env.DOMAIN}/courses/${courseId}`
         ) // Replace with the appropriate URL
         .replace(
           "{{BUTTON_TEXT}}",
-          emailType === "VERIFY" ? "Verify Email" : "Reset Password"
-        ), // html body
+          emailType === "VERIFY"
+            ? "Verify Email"
+            : emailType === "PASSWORD_RESET"
+            ? "Reset Password"
+            : "View Course"
+        ),
     };
 
     const mailResponse = await transport.sendMail(mailOptions);
