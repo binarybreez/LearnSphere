@@ -10,6 +10,7 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 import Link from "next/link";
+import axios from "axios";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -21,9 +22,16 @@ export default function LoginPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
+    await axios.post("http://localhost:8000/api/login", formData)
+    .then((response) => {
+      console.log("Login successful:", response.data);
+    })
+    .catch((error) => {
+      console.error("Login error:", error);
+    });
+    
     console.log("Form submitted:", formData);
   };
 

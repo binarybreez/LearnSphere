@@ -14,6 +14,7 @@ import {
   CardActions,
 } from '@mui/material'
 import Link from 'next/link'
+import Spline from '@splinetool/react-spline/next';
 
 export default function LandingPage() {
   return (
@@ -28,7 +29,11 @@ export default function LandingPage() {
         </Toolbar>
       </AppBar>
 
-      <Container component="main" sx={{ mt: 8, mb: 2, flex: 1 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="hidden md:block">
+          <Spline scene="https://prod.spline.design/IIqP0Mh8hjp1QKdQ/scene.splinecode" />
+        </div>
+        <Container component="main" sx={{ mt: 8, mb: 2, flex: 1 }}>
         {/* Hero Section */}
         <Box sx={{ mb: 8, textAlign: 'center' }}>
           <Typography variant="h2" component="h1" gutterBottom>
@@ -73,6 +78,7 @@ export default function LandingPage() {
           </Button>
         </Box>
       </Container>
+      </div>
 
       <Box component="footer" sx={{ py: 3, px: 2, mt: 'auto', backgroundColor: 'primary.main', color: 'white' }}>
         <Container maxWidth="sm">

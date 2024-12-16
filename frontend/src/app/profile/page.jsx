@@ -12,7 +12,7 @@ import {
   Box,
   LinearProgress,
 } from '@mui/material';
-
+import axios from "axios";
 // Dummy data for courses and progress
 const courses = [
   { id: 1, title: 'Introduction to React', status: 'Completed' },
@@ -28,6 +28,26 @@ const userProgress = {
 };
 
 const UserProfile = () => {
+  const [user, setUser] = useState(null);
+  const [courses, setCourses] = useState([]);
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/profile")
+    .then((response) => {
+      setUser(response.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching user profile:", error);
+    });
+  }, []);
+  useEffect(() => {
+    axios.get("http://localhost:8000/api/courses")
+    .then((response) => {
+      setCourses(response.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching courses:", error);
+    });
+  }, []);
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={3}>
@@ -40,13 +60,13 @@ const UserProfile = () => {
                 src="/placeholder.svg"
               />
               <Typography variant="h4" gutterBottom>
-                John Doe
+                {user.username}
               </Typography>
               <Typography variant="body1" color="text.secondary" gutterBottom>
-                johndoe@example.com
+                {user.email}
               </Typography>
               <Typography variant="body2" color="primary">
-                Student
+                {user.role}
               </Typography>
             </CardContent>
           </Card>

@@ -10,6 +10,7 @@ import {
   Link as MuiLink,
 } from "@mui/material";
 import Link from "next/link";
+import axios from "axios";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -22,10 +23,15 @@ export default function SignupPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log("Form submitted:", formData);
+    await axios.post("http://localhost:8000/api/signup", formData)
+    .then((response) => {
+      console.log("Signup successful:", response.data);
+    })
+    .catch((error) => {
+      console.error("Signup error:", error);
+    });
   };
 
   return (
